@@ -1,89 +1,102 @@
 import time
-import datetime
 import json
+from datetime import datetime
 import os
+from plyer import notification  # You'll need to install this with: pip install plyer
 
-# File to store reminders (absolute path for safety)
-REMINDERS_FILE = os.path.join(os.getcwd(), "reminders.json")
+class ReminderApp:
+    def __init__(self):
+        self.reminders = []
+        self.filename = "reminders.json"
+        self.load_reminders()
+    
+    def load_reminders(self):
+        """Load reminders from JSON file if it exists."""
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as f:
+                self.reminders = json.load(f)
+    
+    def save_reminders(self):
+        """Save reminders to JSON file."""
+        with open(self.filename, 'w') as f:
+            json.dump(self.reminders, f)
+    
+    def add_reminder(self, title, message, reminder_time):
+        """Add a new reminder."""
+        reminder = {
+            'title': title,
+            'message': message,
+            'time': reminder_time,
+            'completed': False
+        }
+        self.reminders.append(reminder)
+        self.save_reminders()
+        print(f"Reminder set for {reminder_time}")
+    
+    def check_reminders(self):
+        """Check for due reminders and send notifications."""
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        for reminder in self.reminders:
+            if not reminder['completed'] and reminder['time'] <= current_time:
+                self.show_notification(reminder['title'], reminder['message'])
+                reminder['completed'] = True
+                self.save_reminders()
+    
+    def show_notification(self, title, message):
+        """Show desktop notification."""
+        notification.notify(
+            title=title,
+            message=message,
+            app_icon=None,
+            timeout=10,
+        )
+    
+    def list_reminders(self):
+        """Display all reminders."""
+        if not self.reminders:
+            print("No reminders set!")
+            return
+        
+        print("\nCurrent Reminders:")
+        print("-----------------")
+        for i, reminder in enumerate(self.reminders, 1):
+            status = "Completed" if reminder['completed'] else "Pending"
+            print(f"{i}. Title: {reminder['title']}")
+            print(f"   Message: {reminder['message']}")
+            print(f"   Time: {reminder['time']}")
+            print(f"   Status: {status}\n")
 
-# Function to load reminders
-def load_reminders():
-    try:
-        with open(REMINDERS_FILE, "r") as file:
-            content = file.read().strip()
-            if content:  # If content is not empty
-                return json.loads(content)
-            else:
-                return []  # Return empty list if the file is empty
-    except FileNotFoundError:
-        print("File not found, returning empty reminders.")
-        return []
-    except json.JSONDecodeError:
-        print("Error decoding JSON, returning empty reminders.")
-        return []
-    except Exception as e:
-        print(f"Error loading reminders: {e}")
-        return []
-
-# Function to save reminders
-def save_reminders(reminders):
-    try:
-        with open(REMINDERS_FILE, "w") as file:
-            json.dump(reminders, file, indent=4)
-        print(f"Reminders saved: {reminders}")  # Debugging line to check what's being saved
-    except Exception as e:
-        print(f"Error saving reminders: {e}")
-
-# Function to add a new reminder
-def add_reminder(task, date_time):
-    reminders = load_reminders()
-    reminders.append({"task": task, "time": date_time})
-    save_reminders(reminders)
-    print("Reminder added successfully!")
-
-# Function to view reminders
-def view_reminders():
-    reminders = load_reminders()
-    if reminders:
-        for reminder in reminders:
-            print(f"Task: {reminder['task']}, Time: {reminder['time']}")
-    else:
-        print("No reminders found!")
-
-# Function to check and trigger reminders
-def check_reminders():
-    reminders = load_reminders()
-    now = datetime.datetime.now()
-    for reminder in reminders:
-        reminder_time = datetime.datetime.strptime(reminder["time"], "%Y-%m-%d %H:%M:%S")
-        if reminder_time <= now:
-            print(f"Reminder: {reminder['task']}")
-            reminders.remove(reminder)
-    save_reminders(reminders)
-
-# Main function
 def main():
+    app = ReminderApp()
+    
     while True:
-        print("\nReminder App")
+        print("\n=== Reminder App ===")
         print("1. Add Reminder")
-        print("2. View Reminders")
-        print("3. Exit")
-
-        choice = input("Enter your choice: ")
-
-        if choice == "1":
-            task = input("Enter task: ")
-            date_time = input("Enter date and time (YYYY-MM-DD HH:MM:SS): ")
-            add_reminder(task, date_time)
-        elif choice == "2":
-            view_reminders()
-        elif choice == "3":
+        print("2. List Reminders")
+        print("3. Check Reminders")
+        print("4. Exit")
+        
+        choice = input("Enter your choice (1-4): ")
+        
+        if choice == '1':
+            title = input("Enter reminder title: ")
+            message = input("Enter reminder message: ")
+            print("Enter reminder time (format: YYYY-MM-DD HH:MM)")
+            reminder_time = input("Time: ")
+            app.add_reminder(title, message, reminder_time)
+            
+        elif choice == '2':
+            app.list_reminders()
+            
+        elif choice == '3':
+            app.check_reminders()
+            
+        elif choice == '4':
+            print("Goodbye!")
             break
+            
         else:
-            print("Invalid choice! Try again.")
-
-        check_reminders()
-        time.sleep(1)  # Avoid high CPU usage
+            print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
     main()
