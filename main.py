@@ -1,22 +1,38 @@
 import time
 import datetime
 import json
+import os
 
-# File to store reminders
-REMINDERS_FILE = "reminders.json"
+# File to store reminders (absolute path for safety)
+REMINDERS_FILE = os.path.join(os.getcwd(), "reminders.json")
 
 # Function to load reminders
 def load_reminders():
     try:
         with open(REMINDERS_FILE, "r") as file:
-            return json.load(file)
+            content = file.read().strip()
+            if content:  # If content is not empty
+                return json.loads(content)
+            else:
+                return []  # Return empty list if the file is empty
     except FileNotFoundError:
+        print("File not found, returning empty reminders.")
+        return []
+    except json.JSONDecodeError:
+        print("Error decoding JSON, returning empty reminders.")
+        return []
+    except Exception as e:
+        print(f"Error loading reminders: {e}")
         return []
 
 # Function to save reminders
 def save_reminders(reminders):
-    with open(REMINDERS_FILE, "w") as file:
-        json.dump(reminders, file, indent=4)
+    try:
+        with open(REMINDERS_FILE, "w") as file:
+            json.dump(reminders, file, indent=4)
+        print(f"Reminders saved: {reminders}")  # Debugging line to check what's being saved
+    except Exception as e:
+        print(f"Error saving reminders: {e}")
 
 # Function to add a new reminder
 def add_reminder(task, date_time):
@@ -28,8 +44,11 @@ def add_reminder(task, date_time):
 # Function to view reminders
 def view_reminders():
     reminders = load_reminders()
-    for reminder in reminders:
-        print(f"Task: {reminder['task']}, Time: {reminder['time']}")
+    if reminders:
+        for reminder in reminders:
+            print(f"Task: {reminder['task']}, Time: {reminder['time']}")
+    else:
+        print("No reminders found!")
 
 # Function to check and trigger reminders
 def check_reminders():
