@@ -31,7 +31,7 @@ Download and install Python from [python.org](https://www.python.org/). Ensure t
 ### 2. Clone the Repository
 Clone this project to your local machine:
 ```bash
-git clone <repository_url>
+git clone <https://github.com/SiddarthaNanuvala/Language_Translator_App_siddartha_nanuvala_td1.git>
 cd LanguageTranslator
 ```
 
