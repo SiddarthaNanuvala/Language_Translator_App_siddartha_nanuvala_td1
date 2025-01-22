@@ -1,23 +1,34 @@
-document.getElementById('translatorForm').addEventListener('submit', function (event) {
+document.getElementById('translatorForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const inputText = document.getElementById('inputText').value;
     const targetLanguage = document.getElementById('language').value;
 
-    // Simulate translation (replace this with actual backend API calls)
-    const mockTranslation = `Translated version of "${inputText}" to ${targetLanguage}`;
+    try {
+        // Send translation request to the Flask backend
+        const response = await fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: inputText, language: targetLanguage }),
+        });
 
-    // Show the result
-    const resultSection = document.getElementById('resultSection');
-    const translatedText = document.getElementById('translatedText');
-    translatedText.textContent = mockTranslation;
-    resultSection.classList.remove('hidden');
-});
+        const result = await response.json();
 
-document.getElementById('copyButton').addEventListener('click', function () {
-    const translatedText = document.getElementById('translatedText').textContent;
+        if (response.ok) {
+            // Display the translated text
+            const translatedText = document.getElementById('translatedText');
+            translatedText.textContent = result.translated_text;
 
-    navigator.clipboard.writeText(translatedText)
-        .then(() => alert('Translation copied to clipboard!'))
-        .catch(() => alert('Failed to copy. Please try again.'));
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.remove('hidden');
+        } else {
+            // Display error message
+            alert(result.error || 'An unknown error occurred.');
+        }
+    } catch (error) {
+        alert('Failed to connect to the translation service. Please check your network and try again.');
+        console.error(error);
+    }
 });
