@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from translate import Translator  # Ensure this package is installed, or use googletrans instead.
+from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 
@@ -7,20 +7,15 @@ app = Flask(__name__)
 def index():
     translated_text = ""
     if request.method == 'POST':
-        # Get the text and target language from the form
-        original_text = request.form['text']
+        text_to_translate = request.form['text']
         target_language = request.form['language']
-        
-        try:
-            # Initialize the translator and translate the text
-            translator = Translator(to_lang=target_language)
-            translated_text = translator.translate(original_text)
-        except Exception as e:
-            # Handle translation errors
-            translated_text = f"Error: {str(e)}"
-
-    # Render the HTML template with the translated text
+        if text_to_translate and target_language:
+            try:
+                translated_text = GoogleTranslator(target=target_language).translate(text_to_translate)
+            except Exception as e:
+                translated_text = "Error: Unable to translate. Please try again."
+                print(f"Error: {e}")
     return render_template('index.html', translated_text=translated_text)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
