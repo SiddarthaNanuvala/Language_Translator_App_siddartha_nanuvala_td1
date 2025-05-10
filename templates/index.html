@@ -3,44 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Language Translator</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Professional Language Translator & Learning Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Language Translator</h1>
-        <form method="POST">
-            <label for="text">Enter text to translate:</label><br>
-            <textarea id="text" name="text" rows="4" cols="50" required></textarea><br>
+        <header>
+            <h1>Language Translator & Learning Platform</h1>
+            <div class="theme-toggle">
+                <button id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
 
-            <label for="language">Choose target language:</label>
-            <select id="language" name="language" required>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="te">Telugu</option>
-                <option value="ta">Tamil</option>
-                <option value="ml">Malayalam</option>
-                <!-- Add more options as needed -->
-            </select><br><br>
+        <form id="translatorForm">
+            <div class="language-selectors">
+                <div class="select-container">
+                    <label for="sourceLanguage">Source Language:</label>
+                    <select id="sourceLanguage" name="sourceLanguage">
+                        <option value="auto">Auto Detect</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
 
-            <button type="submit">Translate</button>
+                <button type="button" class="swap-btn" onclick="swapLanguages()">
+                    <i class="fas fa-exchange-alt"></i>
+                </button>
+
+                <div class="select-container">
+                    <label for="targetLanguage">Target Language:</label>
+                    <select id="targetLanguage" name="targetLanguage">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea id="inputText" name="text" placeholder="Enter text to translate..." required></textarea>
+                <div class="input-buttons">
+                    <button type="button" class="icon-btn" onclick="clearInput()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="button" class="icon-btn" onclick="speakInput()">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="translate-btn">
+                <i class="fas fa-language"></i> Translate
+            </button>
         </form>
 
-        {% if translated_text %}
-        <h2>Translation Result:</h2>
-        <textarea id="output" readonly rows="4" cols="50">{{ translated_text }}</textarea>
-        <br><br>
-        <button onclick="copyToClipboard()">Copy to Clipboard</button>
-        {% endif %}
+        <div id="resultSection" class="hidden">
+            <h2>Translation Result</h2>
+            <div id="translatedBox"></div>
+            <div class="result-buttons">
+                <button onclick="speakTranslation()">
+                    <i class="fas fa-volume-up"></i> Speak
+                </button>
+                <button onclick="copyTranslation()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+        </div>
 
-        <p>Made with ❤️ for language enthusiasts.</p>
+        <div id="learningTools" class="hidden">
+            <div class="learning-tool">
+                <h3><i class="fas fa-book"></i> Word Breakdown</h3>
+                <div id="wordBreakdown" class="word-list"></div>
+            </div>
+
+            <div class="learning-tool">
+                <h3><i class="fas fa-graduation-cap"></i> Grammar Tips</h3>
+                <div id="grammarTips" class="grammar-content"></div>
+            </div>
+
+            <div class="learning-tool">
+                <h3><i class="fas fa-cards"></i> Flashcards</h3>
+                <div class="flashcard-container">
+                    <div id="flashcard" class="flashcard" onclick="flipCard()">
+                        <div class="flashcard-front"></div>
+                        <div class="flashcard-back"></div>
+                    </div>
+                    <div class="flashcard-controls">
+                        <button onclick="prevCard()">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <button onclick="nextCard()">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="learning-tool">
+                <h3><i class="fas fa-bookmark"></i> Daily Vocabulary</h3>
+                <div id="dailyVocabulary" class="vocabulary-content"></div>
+            </div>
+        </div>
+
+        <div id="practiceSection" class="hidden">
+            <div class="practice-tool">
+                <h3><i class="fas fa-microphone"></i> Speaking Practice</h3>
+                <div class="practice-content">
+                    <div id="practiceText" class="practice-text"></div>
+                    <button onclick="startSpeakingPractice()">
+                        <i class="fas fa-microphone"></i> Start Speaking
+                    </button>
+                    <div id="feedback" class="feedback-container"></div>
+                </div>
+            </div>
+
+            <div class="practice-tool">
+                <h3><i class="fas fa-keyboard"></i> Typing Practice</h3>
+                <div class="practice-content">
+                    <div class="practice-text"></div>
+                    <textarea class="practice-input" placeholder="Type the text above..."></textarea>
+                    <div class="feedback-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="progressSection" class="hidden">
+            <div class="progress-dashboard">
+                <h3><i class="fas fa-chart-line"></i> Learning Progress</h3>
+                <div class="progress-stats">
+                    <div class="stat-card">
+                        <h4>Words Learned</h4>
+                        <p id="wordsLearned">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Practice Time</h4>
+                        <p id="practiceTime">0h 0m</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Current Streak</h4>
+                        <p id="currentStreak">0 days</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="historySection" class="hidden">
+            <h3><i class="fas fa-history"></i> Recent Translations</h3>
+            <div id="historyList" class="history-list"></div>
+        </div>
     </div>
 
-    <script>
-        
-    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

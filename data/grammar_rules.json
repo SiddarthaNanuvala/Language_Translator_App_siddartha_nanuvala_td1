@@ -1,0 +1,30 @@
+{
+    "en-es": {
+        "tips": [
+            "In Spanish, adjectives typically come after the noun they modify.",
+            "Spanish has two types of 'to be': 'ser' for permanent states and 'estar' for temporary conditions.",
+            "Spanish verbs change their endings based on the subject pronoun."
+        ],
+        "examples": [
+            "The red car → El coche rojo",
+            "I am tall (permanent) → Yo soy alto",
+            "I am tired (temporary) → Yo estoy cansado"
+        ]
+    },
+    "es-en": {
+        "tips": [
+            "In English, adjectives typically come before the noun they modify.",
+            "English uses 'to be' for both permanent and temporary states.",
+            "English verbs typically don't change their form based on the subject."
+        ],
+        "examples": [
+            "El coche rojo → The red car",
+            "Yo soy alto → I am tall",
+            "Yo estoy cansado → I am tired"
+        ]
+    },
+    "en-fr": "In French, adjectives can come before or after the noun depending on the adjective.",
+    "fr-en": "In English, adjectives typically come before the noun they modify.",
+    "en-de": "In German, adjectives change their endings based on the gender, number, and case of the noun.",
+    "de-en": "In English, adjectives do not change their form based on the noun."
+}
