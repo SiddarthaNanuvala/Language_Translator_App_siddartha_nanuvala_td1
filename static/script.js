@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 // Initialize variables
 let currentFlashcardIndex = 0;
 let flashcards = [];
 let speechRecognition = null;
 let practiceTimer = null;
 let practiceStartTime = null;
+=======
+document.getElementById('translatorForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+>>>>>>> 2f497e4c414f441f646a81876144b59be31ca5fa
 
 // DOM Elements
 const translatorForm = document.getElementById('translatorForm');
@@ -18,6 +23,7 @@ const progressSection = document.getElementById('progressSection');
 const historySection = document.getElementById('historySection');
 const themeToggle = document.getElementById('themeToggle');
 
+<<<<<<< HEAD
 // Initialize theme
 const currentTheme = localStorage.getItem('theme') || 'light';
 document.documentElement.setAttribute('data-theme', currentTheme);
@@ -262,4 +268,33 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHistoryDisplay();
     updateDailyVocabulary();
     updateProgressStats();
+=======
+    try {
+        // Send translation request to the Flask backend
+        const response = await fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: inputText, language: targetLanguage }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Display the translated text
+            const translatedText = document.getElementById('translatedText');
+            translatedText.textContent = result.translated_text;
+
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.remove('hidden');
+        } else {
+            // Display error message
+            alert(result.error || 'An unknown error occurred.');
+        }
+    } catch (error) {
+        alert('Failed to connect to the translation service. Please check your network and try again.');
+        console.error(error);
+    }
+>>>>>>> 2f497e4c414f441f646a81876144b59be31ca5fa
 });
